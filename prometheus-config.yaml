@@ -9,3 +9,8 @@ scrape_configs:
   - job_name: 'test-app'
     static_configs:
       - targets: ['test-app:4000']
+
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']

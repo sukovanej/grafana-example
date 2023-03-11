@@ -1,18 +1,22 @@
+import { Pushgateway, Registry } from "prom-client";
 import { createApi } from "./api.js";
 import { setupBackgroundLoggerTask } from "./background-logger.js";
+import { setupErrorHandler } from "./exit-handler.js";
 import { Logger } from "./logging.js";
 
-const logger = new Logger({ app: "test-app" });
+const TAGS = { app: "test-api" };
+const logger = new Logger(TAGS);
 
-process
-  .on("SIGTERM", () => logger.exitWithLog(0, "warning", "exited after SIGTERM"))
-  .on("SIGINT", () => logger.exitWithLog(0, "warning", "exited after SIGINT"))
-  .on("unhandledRejection", (error: Error) => {
-    logger.sendLog("error", `unhandledRejection ${error.message}`);
-  })
-  .on("uncaughtException", (error: Error) => {
-    logger.sendLog("error", `unhandledException ${error.message}`);
-  });
+setupErrorHandler(logger);
 
-createApi(logger).listen(4000);
-setupBackgroundLoggerTask(logger);
+const register = new Registry();
+register.setDefaultLabels(TAGS);
+
+const gatewayRegister = new Registry();
+gatewayRegister.setDefaultLabels(TAGS);
+const gateway = new Pushgateway("http://pushgateway:9091", {}, gatewayRegister);
+
+logger.debug("App starting");
+
+createApi(logger, register).listen(4000);
+setupBackgroundLoggerTask(logger, gateway, gatewayRegister);

@@ -15,7 +15,7 @@ export type JsonValue =
   | { [K in string | number]: JsonValue };
 export type JsonObject = Record<string, JsonValue>;
 
-type LogLevel = "debug" | "info" | "warning" | "error";
+export type LogLevel = "debug" | "info" | "warning" | "error";
 
 export class Logger {
   constructor(readonly tags: JsonObject | undefined) {}
@@ -66,16 +66,5 @@ export class Logger {
 
   async error(message: string, tags?: JsonObject) {
     return this.sendLog("error", message, tags);
-  }
-
-  async exitWithLog(
-    exitCode: number,
-    logLevel: LogLevel,
-    message: string,
-    tags?: JsonObject
-  ) {
-    return this.sendLog(logLevel, message, tags).then(() =>
-      process.exit(exitCode)
-    );
   }
 }
