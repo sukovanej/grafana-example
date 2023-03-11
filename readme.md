@@ -25,5 +25,5 @@ Import dashboard `11159` to see nodejs metrics.
 
 ### TODO
 
-Currently, I'm using the loki push API directly to store logs. It would be better to let `promptail`
+Currently, I'm using the loki push API directly to store logs. It would be better to let `promtail`
 to aggregate them instead.
