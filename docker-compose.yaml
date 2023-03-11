@@ -1,0 +1,45 @@
+version: "3.7"
+
+networks:
+  grafana-test-network:
+
+services:
+  test-app:
+    build:
+      context: ./example-app
+    ports:
+      - "4000:4000"
+    networks:
+      - grafana-test-network
+
+  loki:
+    image: grafana/loki:2.7.3
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - grafana-test-network
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./grafana-loki-datasource.yaml:/etc/grafana/provisioning/datasources/grafana-loki-datasource.yaml
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - grafana-test-network
+
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    volumes:
+      - ./prometheus-config.yaml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    networks:
+      - grafana-test-network
