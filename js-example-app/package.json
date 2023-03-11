@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "tsx app.ts",
-    "format": "prettier -w *.ts package.json"
+    "format": "prettier -w src/*.ts package.json"
   },
   "keywords": [],
   "author": "",

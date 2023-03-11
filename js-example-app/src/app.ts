@@ -3,9 +3,11 @@ import { createApi } from "./api.js";
 import { setupBackgroundLoggerTask } from "./background-logger.js";
 import { setupErrorHandler } from "./exit-handler.js";
 import { Logger } from "./logging.js";
+import { LokiClient } from "./loki.js";
 
 const TAGS = { app: "js-example-app" };
-const logger = new Logger(TAGS);
+const lokiClient = new LokiClient("http://loki:3100/loki/api/v1/push", TAGS);
+const logger = new Logger(lokiClient, {});
 
 setupErrorHandler(logger);
 

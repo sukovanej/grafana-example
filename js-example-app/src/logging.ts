@@ -1,14 +1,6 @@
-import fetch from "node-fetch";
+import { LokiClient } from "./loki";
 
-const loadNs = process.hrtime();
-const loadMs = new Date().getTime();
-
-const nanoseconds = () => {
-  let diffNs = process.hrtime(loadNs);
-  return (loadMs * 1e6 + diffNs[0] * 1e9 + diffNs[1]).toString();
-};
-
-export type JsonValue =
+type JsonValue =
   | number
   | string
   | JsonValue[]
@@ -18,36 +10,19 @@ export type JsonObject = Record<string, JsonValue>;
 export type LogLevel = "debug" | "info" | "warning" | "error";
 
 export class Logger {
-  constructor(readonly tags: JsonObject | undefined) {}
+  constructor(
+    private readonly lokiClient: LokiClient,
+    private readonly tags: JsonObject | undefined
+  ) {}
 
   createChild(extendTags?: JsonObject) {
-    return new Logger({ ...this.tags, ...extendTags });
-  }
-
-  private createLokiInput(labels: JsonObject, object: JsonObject) {
-    return JSON.stringify({
-      streams: [
-        {
-          stream: labels,
-          values: [[nanoseconds(), JSON.stringify(object)]],
-        },
-      ],
-    });
+    return new Logger(this.lokiClient, { ...this.tags, ...extendTags });
   }
 
   async sendLog(logLevel: LogLevel, message: string, tags?: JsonObject) {
-    const body = this.createLokiInput(
-      { app: "testapp", foo: "bar" },
-      { message, ...tags, ...this.tags }
+    const res = await this.lokiClient.sendLog(
+      JSON.stringify({ logLevel, message, ...this.tags, ...tags })
     );
-    const res = await fetch("http://loki:3100/loki/api/v1/push", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
-
     console.log(`[${logLevel}] ${message}`);
     console.log(`Log sent, text=${res.statusText}, status=${res.status}`);
   }
