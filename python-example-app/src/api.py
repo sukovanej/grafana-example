@@ -8,8 +8,7 @@ my_endpoint_counter = Counter(
     "my_enpoint_triggered_count",
     "Count the number of times /my-endpoint has been triggered",
     labelnames=["app"],
-    _labelvalues=["python-example-app"],
-)
+).labels(app="python-example-app")
 
 
 @app.get("/metrics")
@@ -20,4 +19,4 @@ def metrics():
 @app.get("/my-endpoint")
 def my_endpoint():
     my_endpoint_counter.inc()
-    return "zdar"
+    return PlainTextResponse("zdar")
