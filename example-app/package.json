@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "tsx app.ts"
+    "start": "tsx app.ts",
+    "format": "prettier -w *.ts package.json"
   },
   "keywords": [],
   "author": "",
