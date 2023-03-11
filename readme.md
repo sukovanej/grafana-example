@@ -20,6 +20,8 @@ Then you can access
 - grafana on [localhost:3000](http://localhost:3000)
 - prometheus on [localhost:9090](http://localhost:9090)
 
+Import dashboard `11159` to see nodejs metrics.
+
 
 ### TODO
 
