@@ -4,7 +4,7 @@ import { setupBackgroundLoggerTask } from "./background-logger.js";
 import { setupErrorHandler } from "./exit-handler.js";
 import { Logger } from "./logging.js";
 
-const TAGS = { app: "test-api" };
+const TAGS = { app: "js-example-app" };
 const logger = new Logger(TAGS);
 
 setupErrorHandler(logger);
