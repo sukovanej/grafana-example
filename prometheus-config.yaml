@@ -6,9 +6,13 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  - job_name: 'test-app'
+  - job_name: 'js-example-app'
     static_configs:
-      - targets: ['test-app:4000']
+      - targets: ['js-example-app:4000']
+
+  - job_name: 'python-example-app'
+    static_configs:
+      - targets: ['python-example-app:4001']
 
   - job_name: 'pushgateway'
     honor_labels: true

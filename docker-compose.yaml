@@ -4,11 +4,19 @@ networks:
   grafana-test-network:
 
 services:
-  test-app:
+  js-example-app:
     build:
-      context: ./example-app
+      context: ./js-example-app
     ports:
       - "4000:4000"
+    networks:
+      - grafana-test-network
+
+  python-example-app:
+    build:
+      context: ./python-example-app
+    ports:
+      - "4001:4001"
     networks:
       - grafana-test-network
 
@@ -26,7 +34,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     volumes:
-      - ./grafana-loki-datasource.yaml:/etc/grafana/provisioning/datasources/grafana-loki-datasource.yaml
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/grafana-loki-datasource.yaml
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
@@ -46,7 +54,6 @@ services:
 
   pushgateway:
     image: prom/pushgateway
-    container_name: pushgateway
     restart: unless-stopped
     expose:
       - 9091
