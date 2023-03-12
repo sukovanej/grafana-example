@@ -20,27 +20,28 @@ func recordMetrics(logger *Logger) {
 }
 
 var (
-	tags = prometheus.Labels{
+	labels = prometheus.Labels{
 		"app": "go-example-app",
 	}
 	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
 		Name:        "go_example_processed_events",
 		Help:        "The total number of processed events",
-		ConstLabels: tags,
+		ConstLabels: labels,
 	})
-
 	goEndpointCalled = promauto.NewCounter(prometheus.CounterOpts{
 		Name:        "go_endpoint_called",
 		Help:        "The total number of calls to the /go-endpoint",
-		ConstLabels: tags,
+		ConstLabels: labels,
 	})
 )
 
 func main() {
-	logger := Logger{
-		labels:  Tags{"app": "go-example-app"},
-		lokiUrl: "http://loki:3100/loki/api/v1/push",
+	lokiClient := LokiClient{
+		url:    "http://loki:3100/loki/api/v1/push",
+		labels: labels,
 	}
+	logger := Logger{Tags{}, lokiClient}
+
 	logger.info("App started", Tags{})
 
 	recordMetrics(&logger)

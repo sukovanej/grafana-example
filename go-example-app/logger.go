@@ -2,10 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type Tags = map[string]interface{}
@@ -18,8 +14,8 @@ const (
 )
 
 type Logger struct {
-	labels  Tags
-	lokiUrl string
+	tags       Tags
+	lokiClient LokiClient
 }
 
 func (l *Logger) sendLog(logLevel string, message string, tags Tags) error {
@@ -29,6 +25,10 @@ func (l *Logger) sendLog(logLevel string, message string, tags Tags) error {
 	}
 
 	println("[", logLevel, "]", message)
+
+	for k, v := range l.tags {
+		logBody[k] = v
+	}
 
 	for k, v := range tags {
 		logBody[k] = v
@@ -40,31 +40,7 @@ func (l *Logger) sendLog(logLevel string, message string, tags Tags) error {
 		return err
 	}
 
-	body := map[string]interface{}{
-		"streams": []interface{}{map[string](interface{}){
-			"stream": l.labels,
-			"values": []interface{}{[]interface{}{
-				strconv.FormatInt(time.Now().UnixNano(), 10),
-				string(logBodyStr),
-			}},
-		}},
-	}
-
-	bodyStr, err := json.Marshal(body)
-
-	if err != nil {
-		return err
-	}
-
-	client := http.Client{}
-	response, err := client.Post(l.lokiUrl, "application/json", strings.NewReader(string(bodyStr)))
-
-	if err != nil {
-		println("Loki request failed with", err.Error())
-		return err
-	}
-
-	println("Log stored", response.StatusCode)
+	l.lokiClient.sendLog(string(logBodyStr))
 	return nil
 }
 
